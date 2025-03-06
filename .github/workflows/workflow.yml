@@ -1,37 +1,14 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
-run-name: ${{ github.actor }} is testing out GitHub Actions.
-
+run-name: ${{ github.actor }} was run current workflow.
 env:
-  APP_ENV: PythonApp
-
-# Controls when the workflow will run
+  GITHUB_ACTIONS: CurrentActions
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  github-task-job:
     runs-on: ubuntu-latest
-    env:
-      CONFIG_TYPE: Debug
-      PYTHON_VERSION: 3.8
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - run: echo "Current APP_ENV is ${{ env.APP_ENV }}"
-      - run: echo "CONFIG_TYPE is ${{ env.CONFIG_TYPE }}, PYTHON_VERSION is ${{ env.PYTHON_VERSION }}"
-      - run: echo "Job was triggered by event ${{ github.event_name }}"
-      - run: echo "This job was executed on a runner with os ${{ runner.os }}"
-      - run: echo "Name of the branch ${{ github.ref }} and repositoty is ${{ github.repository }}"
-      - run: echo "This job's status is ${{ job.status }}"
-      
+      - run: echo "GITHUB_ACTIONS is ${{ env.GITHUB_ACTIONS }}"
+      - run: echo "Branch name is ${{ github.ref }}, repo name is ${{ github.repository }}"
+      - run: echo "Current job was triggered by event ${{ github.event_name }}"
