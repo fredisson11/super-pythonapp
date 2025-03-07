@@ -86,5 +86,6 @@ def external_call():
         return Response(f"Error calling external endpoint: {str(e)}",
                         status=500)
 
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
