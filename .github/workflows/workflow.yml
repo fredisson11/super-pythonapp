@@ -102,12 +102,13 @@ jobs:
 
     - name: Setup Helm
       uses: azure/setup-helm@v4.3.0
+      id: install
 
     - name: Lint Helm
       run: helm lint ./kube2py/
 
     - name: Template Helm
-      run: helm template kube2py ./kube2py/ -f ./kube2py/values.yaml
+      run: helm template kube2py ./kube2py -f ./kube2py/values.yaml
 
     - name: Package Helm
       run: helm package ./kube2py
