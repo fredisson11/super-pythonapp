@@ -13,6 +13,7 @@ env:
 jobs:
 
   python-ci:
+
     runs-on: ubuntu-latest
 
     defaults:
@@ -54,6 +55,9 @@ jobs:
         path: .
 
   build-image:
+
+    needs: ['python-ci']
+
     runs-on: ubuntu-latest
 
     steps:
