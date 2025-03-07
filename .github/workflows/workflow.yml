@@ -107,6 +107,9 @@ jobs:
     - name: Lint Helm
       run: helm lint ./kube2py/
 
+    - name: Updating Helm dependency
+      run: helm dependency update ./kube2py
+
     - name: Template Helm
       run: helm template kube2py ./kube2py -f ./kube2py/values.yaml
 
