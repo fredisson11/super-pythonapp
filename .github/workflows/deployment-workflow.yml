@@ -1,75 +1,79 @@
 name: helm-upgrade
+
+
 run-name: ${{ github.actor }} - ${{ github.ref_name }}
+
 
 on:
   workflow_call:
     inputs:
       environment:
         required: true
-        description: "Envitoment to deploy to"
+        description: 'Environment to deploy to'
         type: string
       version:
         required: true
+        description: 'Version of the image to deploy'
         type: string
       helm-values-path:
+        description: 'Path to the helm values file'
         type: string
-        default: './kube2py/values.yaml'
+        default: './kube2py/values.'
       helm-release-name:
-        default: kube2py
+        description: 'Name of the helm release'
         type: string
-
+        default: 'kube2py'
 jobs:
-
-  helm-deploy:
-
-    name: ${{ inputs.environment }}
+  deploy-helm:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
+    name: ${{ inputs.environment }}
+
 
     steps:
-    - uses: actions/download-artifact@v4
-      with:
-        name: helm-artifact
-        path: .
-
     - uses: actions/download-artifact@v4
       with:
         name: helm-package
         path: .
 
-    - name: Setup Helm
-      uses: azure/setup-helm@v4.3.0
 
-    - name: Setup kubectl
-      uses: azure/setup-kubectl@v4
+    - uses: actions/download-artifact@v4
+      with:
+        name: helm-artifacts
+        path: .
+
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v4.2.0
+
+
+    - uses: azure/setup-kubectl@v4
+      name: Set up Kubectl
+
 
     - uses: azure/login@v2
+
       with:
-         creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - uses: azure/aks-set-context@v4
+
+    - uses: azure/aks-set-context@v3
+
       with:
-         resource-group: '${{ vars.AZURE_RESOURCE_GROUP }}'
-         cluster-name: '${{ vars.AZURE_CLUSTER_NAME }}'
+        cluster-name: ${{ vars.AZURE_CLUSTER_NAME }}
+        resource-group: ${{ vars.AZURE_RESOURCE_GROUP }}
 
-    - name: Debug Helm Release Name
-      run: |
-        echo "Helm Release Name: ${{ inputs.helm-release-name }}"
 
-    - name: Deploy Helm to ${{ inputs.environment }}
+    - name: Deploy Helm
       run: |
-        helm upgrade --install --atomic --wait --timeout 3600s --debug ${{ inputs.helm-release-name }} ./kube2py-*.tgz \
+        helm upgrade --install --atomic  --wait --timeout 1800s --debug ${{ inputs.helm-release-name }} ./kube2py-*.tgz  \
           -f ${{ inputs.helm-values-path }} \
           --set mysql.configs.MYSQL_ROOT_PASSWORD="${{ secrets.MYSQL_ROOT_PASSWORD }}" \
           --set mysql.configs.MYSQL_USER="${{ secrets.MYSQL_USER }}" \
           --set mysql.configs.MYSQL_PASSWORD="${{ secrets.MYSQL_PASSWORD }}" \
-          --set kybe2py.secrets.password="${{ secrets.KUBE2PY_PASSWORD }}" \
-          --set kybe2py.secrets.login="${{ secrets.KUBE2PY_LOGIN }}" \
-          --set kybe2py.secrets.DB_CONNECTION="${{ secrets.DB_CONNECTION }}" \
-          --set kybe2py.image.version=${{ github.sha }}
-
-
-
-
-
+          --set kube2py.secrets.password="${{ secrets.PASSWORD }}" \
+          --set kube2py.secrets.login="${{ secrets.LOGIN }}" \
+          --set kube2py.secrets.DB_CONNECTION="${{ secrets.DB_CONNECTION }}" \
+          --set global.environment="${{ inputs.environment }}" \
+          --set kube2py.image.version="${{ inputs.version }}"
 
