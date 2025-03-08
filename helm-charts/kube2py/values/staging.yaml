@@ -11,8 +11,8 @@ kube2py:
     APP_ENV: "testing-helm-staging"
 
   secrets:
-    password: MyStrongerPassword
-    login: SuperSuperUser
+    password: placeholder # MyStrongerPassword
+    login: placeholder # SuperSuperUser
 
   resources:
     requests:
