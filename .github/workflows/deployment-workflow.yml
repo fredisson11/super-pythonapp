@@ -52,6 +52,10 @@ jobs:
          resource-group: '${{ vars.AZURE_RESOURCE_GROUP }}'
          cluster-name: '${{ vars.AZURE_CLUSTER_NAME }}'
 
+    - name: Debug Helm Release Name
+      run: |
+        echo "Helm Release Name: ${{ inputs.helm-release-name }}"
+
     - name: Deploy Helm to ${{ inputs.environment }}
       run: |
         helm upgrade --install --atomic --wait --timeout 3600s --debug ${{ inputs.helm-release-name }} ./kube2py-*.tgz \
