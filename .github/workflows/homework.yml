@@ -19,7 +19,7 @@ jobs:
     - name: Show GITHUB_ACTIONS
       run: echo "GITHUB_ACTIONS is ${{ env.GITHUB_ACTIONS }}"
     - name: Show branch and repo name
-      run: echo "Branch - ${{ github.ref_name }}, repo - ${{github.event.repository.name}}"
+      run: echo "Branch - ${{ github.ref }}, repo - ${{github.event.repository.name}}"
     - name: Show event name
       run: echo "Job was triggered by event ${{ github.event_name }}"
  
