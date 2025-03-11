@@ -7,8 +7,6 @@ on:
     branches: ["main"]
 
 env:
-  PythonVersion: 3.8
-  EnvironmentName: Development
   GITHUB_ACTIONS: 'new action'
 
 jobs:
@@ -19,7 +17,7 @@ jobs:
     - name: Show GITHUB_ACTIONS
       run: echo "GITHUB_ACTIONS is ${{ env.GITHUB_ACTIONS }}"
     - name: Show branch and repo name
-      run: echo "Branch - ${{ github.ref }}, repo - ${{github.event.repository.name}}"
+      run: echo "Branch - ${{ github.head_ref }}, repo - ${{github.event.repository.name}}"
     - name: Show event name
       run: echo "Job was triggered by event ${{ github.event_name }}"
  
