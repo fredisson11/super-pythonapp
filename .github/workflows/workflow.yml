@@ -134,7 +134,7 @@ jobs:
 
 
     - name: Template Helm
-      run: helm template kube2py ./kube2py -f ./kube2py/values.
+      run: helm template kube2py ./kube2py -f ./kube2py/values.yaml
 
 
     - name: Package Helm
@@ -154,9 +154,7 @@ jobs:
     needs: [ helm-ci, build-image ]
     secrets: inherit
     with:
-      environment: dev
-      version: ${{ github.sha }}
-
+      environment: development
 
   deploy-helm-staging:
     name: Deploy Helm
@@ -167,4 +165,3 @@ jobs:
       environment: staging
       helm-values-path: ./kube2py/values/staging.yml
       helm-release-name: kube2py-staging
-      version: ${{ github.sha }}
