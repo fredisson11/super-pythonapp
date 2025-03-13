@@ -14,7 +14,7 @@ on:
       helm-values-path:
         description: 'Path to the helm values file'
         type: string
-        default: './kube2py/values.'
+        default: './kube2py/values.yaml'
       helm-release-name:
         description: 'Name of the helm release'
         type: string
