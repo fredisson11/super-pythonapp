@@ -1,0 +1,23 @@
+name: homework
+
+run-name: ${{ github.actor }} started this workflow
+
+on:
+  pull_request:
+    branches: ["main"]
+
+env:
+  GITHUB_ACTIONS: 'new action'
+
+jobs:
+  github-task-job:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Show GITHUB_ACTIONS
+      run: echo "GITHUB_ACTIONS is ${{ env.GITHUB_ACTIONS }}"
+    - name: Show branch and repo name
+      run: echo "Branch - ${{ github.ref_name }}, repo - ${{github.event.repository.name}}"
+    - name: Show event name
+      run: echo "Job was triggered by event ${{ github.event_name }}"
+ 
