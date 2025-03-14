@@ -23,8 +23,6 @@ env:
   PythonVersion: 3.8
   DockerUsername: fredisson11
   DockerImageName: kube2py
-  EnvironmentName: Development
-
 
 jobs:
   python-ci:
@@ -116,6 +114,7 @@ jobs:
     name: Helm CI
     needs: python-ci
     runs-on: ubuntu-latest
+    if: github.ref_name == 'main'
 
 
     steps:
@@ -138,7 +137,8 @@ jobs:
 
 
     - name: Package Helm
-      run: helm package ./kube2py --app-version ${{ github.sha }}
+      # run: helm package ./kube2py --app-version ${{ github.sha }}
+      run: helm package ./kube2py
 
 
     - name: Upload Helm package
