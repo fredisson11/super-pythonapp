@@ -1,6 +1,9 @@
 
 global:
-  ENVIRONMENT: "Staging"
+  ENVIRONMENT: placeholder
+  namespace: kube2py-staging
+
+commmon:
   namespace: kube2py-staging
 
 mysql:
@@ -9,6 +12,9 @@ mysql:
 kube2py:
   configs:
     APP_ENV: "testing-helm-staging"
+  image:
+    repository: fredisson11/kube2py
+    version: placeholder
 
   secrets:
     password: placeholder # MyStrongerPassword
