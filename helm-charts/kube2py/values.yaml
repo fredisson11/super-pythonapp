@@ -2,7 +2,7 @@ commmon:
   namespace: mateapp
 
 global:
-  ENVIRONMENT: "Development"
+  ENVIRONMENT: placeholder
 
 mysql:
   configs:
