@@ -13,6 +13,17 @@ on:
     branches: ["main"]
 
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment Deploy To"
+        required: true
+        type: choice
+        options: ['development', 'staging', 'production']
+      message:
+        description: "Test message"
+        required: false
+        type: string
+
 
 env:
   PythonVersion: 3.8
