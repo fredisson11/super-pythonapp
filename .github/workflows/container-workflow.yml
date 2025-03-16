@@ -13,7 +13,7 @@ jobs:
         - 80
       volumes:
         - my_docker_volume:/volume_mount
-      options: --cpu 1
+      options: --cpus 1
     steps:
       - name: Check for dockerenv file
         run: |
