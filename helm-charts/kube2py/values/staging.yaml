@@ -4,7 +4,7 @@ global:
   namespace: mateapp-staging
 
 commmon:
-  namespace: mateapp-staging
+  namespace: placeholder
 
 mysql:
   namespace: mysql-staging

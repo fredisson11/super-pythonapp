@@ -1,5 +1,5 @@
 commmon:
-  namespace: mateapp
+  namespace: placeholder
 
 global:
   ENVIRONMENT: placeholder
