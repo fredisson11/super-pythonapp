@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [main]
+    branches: [main, feature/test-matrix]
 jobs:
   container-job-test:
     runs-on: ubuntu-latest
