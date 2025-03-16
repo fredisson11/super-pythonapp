@@ -1,167 +1,158 @@
-name: python-deployment
+# name: python-deployment
+
+# run-name: ${{ github.actor }} - ${{ github.ref_name }}
+
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
+
+# on:
+#   push:
+#     branches: ["main"]
+#   pull_request:
+#     branches: ["main"]
+
+#   workflow_dispatch:
+#     inputs:
+#       environment:
+#         description: "Environment Deploy To"
+#         required: true
+#         type: choice
+#         options: ['development', 'staging', 'production']
+#       message:
+#         description: "Test message"
+#         required: false
+#         type: string
 
 
-run-name: ${{ github.actor }} - ${{ github.ref_name }}
+# env:
+#   PythonVersion: 3.8
+#   DockerImageName: kube2py
 
+# jobs:
+#   python-ci:
+#     strategy:
+#       matrix:
+#         PythonVersion: [3.8, 3.9]
+#         OsType: [ubuntu-latest, windows-latest]
+#     runs-on: ${{ matrix.OsType }}
+#     name: Python CI
+#     defaults:
+#       run:
+#         working-directory: ./src
 
-concurrency:
-  group: ${{ github.actor }}-python-deployment
-  cancel-in-progress: true
+#     steps:
+#     - uses: actions/checkout@v4
+#       name: Checkout
 
+#     - name: Set up Python ${{ matrix.PythonVersion }}
+#       uses: actions/setup-python@v4
+#       with:
+#         python-version: ${{ matrix.PythonVersion }}
 
-on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+#     - name: Install dependencies
+#       run: |
+#         python -m pip install --upgrade pip
+#         pip install flake8 pytest pytest-cov
+#         pip install -r requirements.txt
 
+#     - name: Lint with flake8
+#       run: |
+#         cd ../
+#         flake8 . --show-source --statistics
 
-  workflow_dispatch:
+#     - name: Check Complexity
+#       run: |
+#         cd ../
+#         flake8 . --exit-zero --max-complexity=10 --statistics
 
+#     - name: Test with pytest
+#       run: |
+#         pytest -v --cov-report=term-missing --cov=. --cov-report=json
 
-env:
-  PythonVersion: 3.8
-  DockerImageName: kube2py
+#     - name: Upload python artifacts
+#       if: ${{ github.ref_name == 'main' }}
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: python-artifacts
+#         path: .
 
-jobs:
-  python-ci:
-    runs-on: ubuntu-latest
-    name: Python CI
-    defaults:
-      run:
-        working-directory: ./src
+#     - name: Upload helm artifacts
+#       if: ${{ github.ref_name == 'main' }}
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: helm-artifacts
+#         path: ${{ github.workspace }}/helm-charts
 
+#   build-image:
+#     name: Build and push Docker image
+#     needs: python-ci
+#     runs-on: ubuntu-latest
+#     if: ${{ github.ref == 'refs/heads/main' }}
+#     steps:
+#     - uses: actions/download-artifact@v4
+#       with:
+#         name: python-artifacts
+#         path: .
 
-    steps:
-    - uses: actions/checkout@v4
-      name: Checkout
+#     - name: Login to Docker Hub
+#       uses: docker/login-action@v3
+#       with:
+#         username: ${{ secrets.DOCKERHUB_USERNAME }}
+#         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+#     - name: Build and push
+#       uses: docker/build-push-action@v5
+#       with:
+#         context: ./src
+#         push: true
+#         tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DockerImageName }}:${{ github.sha }}
 
-    - name: Set up Python ${{ env.PythonVersion }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PythonVersion }}
+#   helm-ci:
+#     name: Helm CI
+#     needs: python-ci
+#     runs-on: ubuntu-latest
+#     if: github.ref_name == 'main'
 
+#     steps:
+#     - uses: actions/download-artifact@v4
+#       with:
+#         name: helm-artifacts
+#         path: .
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov
-        pip install -r requirements.txt
+#     - name: Set up Helm
+#       uses: azure/setup-helm@v4.2.0
 
+#     - name: Lint Helm
+#       run: helm lint ./kube2py/
 
-    - name: Lint with flake8
-      run: |
-        cd ../
-        flake8 . --show-source --statistics
+#     - name: Template Helm
+#       run: helm template kube2py ./kube2py -f ./kube2py/values.yaml
 
+#     - name: Package Helm
+#       # run: helm package ./kube2py --app-version ${{ github.sha }}
+#       run: helm package ./kube2py
 
-    - name: Check Complexity
-      run: |
-        cd ../
-        flake8 . --exit-zero --max-complexity=10 --statistics
+#     - name: Upload Helm package
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: helm-package
+#         path: ./*.tgz
 
+#   deploy-helm-dev:
+#     name: Deploy Helm
+#     uses: ./.github/workflows/deployment-workflow.yml
+#     needs: [ helm-ci, build-image ]
+#     secrets: inherit
+#     with:
+#       environment: development
 
-    - name: Test with pytest
-      run: |
-        pytest -v --cov-report=term-missing --cov=. --cov-report=json
-
-
-    - name: Upload python artifacts
-      if: ${{ github.ref_name == 'main' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-artifacts
-        path: .
-
-
-    - name: Upload helm artifacts
-      if: ${{ github.ref_name == 'main' }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: helm-artifacts
-        path: ${{ github.workspace }}/helm-charts
-
-
-  build-image:
-    name: Build and push Docker image
-    needs: python-ci
-    runs-on: ubuntu-latest
-    if: ${{ github.ref == 'refs/heads/main' }}
-    steps:
-    - uses: actions/download-artifact@v4
-      with:
-        name: python-artifacts
-        path: .
-
-
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-
-    - name: Build and push
-      uses: docker/build-push-action@v5
-      with:
-        context: ./src
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DockerImageName }}:${{ github.sha }}
-
-
-  helm-ci:
-    name: Helm CI
-    needs: python-ci
-    runs-on: ubuntu-latest
-    if: github.ref_name == 'main'
-
-
-    steps:
-    - uses: actions/download-artifact@v4
-      with:
-        name: helm-artifacts
-        path: .
-
-
-    - name: Set up Helm
-      uses: azure/setup-helm@v4.2.0
-
-
-    - name: Lint Helm
-      run: helm lint ./kube2py/
-
-
-    - name: Template Helm
-      run: helm template kube2py ./kube2py -f ./kube2py/values.yaml
-
-
-    - name: Package Helm
-      # run: helm package ./kube2py --app-version ${{ github.sha }}
-      run: helm package ./kube2py
-
-
-    - name: Upload Helm package
-      uses: actions/upload-artifact@v4
-      with:
-        name: helm-package
-        path: ./*.tgz
-
-
-  deploy-helm-dev:
-    name: Deploy Helm
-    uses: ./.github/workflows/deployment-workflow.yml
-    needs: [ helm-ci, build-image ]
-    secrets: inherit
-    with:
-      environment: development
-
-  deploy-helm-staging:
-    name: Deploy Helm
-    uses: ./.github/workflows/deployment-workflow.yml
-    needs: deploy-helm-dev
-    secrets: inherit
-    with:
-      environment: staging
-      helm-values-path: ./kube2py/values/staging.yaml
-      helm-release-name: kube2py-staging
+#   deploy-helm-staging:
+#     name: Deploy Helm
+#     uses: ./.github/workflows/deployment-workflow.yml
+#     needs: deploy-helm-dev
+#     secrets: inherit
+#     with:
+#       environment: staging
+#       helm-values-path: ./kube2py/values/staging.yaml
+#       helm-release-name: kube2py-staging
